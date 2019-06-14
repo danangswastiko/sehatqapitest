@@ -15,4 +15,10 @@ class Muserprofile < ActiveRecord::Base
         @user.save
         return @user 
     end
+
+    def self.getprofile(uid)
+        @userprofile = Muserprofile.where("userprofileid = #{uid}")
+                                   .select("userprofileid,name,address,phonenumber,dob")
+        return @userprofile 
+    end
 end

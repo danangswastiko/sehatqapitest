@@ -9,15 +9,19 @@ class UserController < ActionController::API
         xphone = user_newuser[:phone]
         xdob = user_newuser[:dob]
 
-        @user = Muser.createnewuser(xusername,xpwd,xuidoapp,xflagoapp)
-        xuid = @user.userid
-        @userprofile = Muserprofile.createnewuserprofile(xuid,xname,xaddress,xphone,xdob)
-        if ! @user.nil?
-            render json: [status: "OK", message: "Registration New User Success"]
+        if xusername == "" || xpwd =="" || xusername.nil?  || xpwd.nil? || xname == "" || xaddress == "" ||
+           xphone == "" || xdob == "" || xname.nil? || xaddress.nil? || xphone.nil? || xdob.nil?
+            render json: [status:"ERROR", message: "Username,Pwd, name, address, phone and dob Cannot be empty !"]
         else
-            render json: [status: "ERROR", message: @user.errors]
+            @user = Muser.createnewuser(xusername,xpwd,xuidoapp,xflagoapp)
+            xuid = @user.userid
+            @userprofile = Muserprofile.createnewuserprofile(xuid,xname,xaddress,xphone,xdob)
+            if ! @user.nil?
+                render json: [status: "OK", message: "Registration New User Success"]
+            else
+                render json: [status: "ERROR", message: @user.errors]
+            end
         end
-        
     end
 
     def login
@@ -35,11 +39,30 @@ class UserController < ActionController::API
         end
     end
 
+    def userprofile
+        xuid = user_profile[:uid]
+        xtoken = user_profile[:token]
+        if xuid == "" || xtoken =="" || xuid.nil?  || xtoken.nil? 
+            render json: [status:"ERROR", message: "userid and token cannot be empty !"]
+            return
+        end
+        @user = Muser.checktoken(xuid, xtoken)
+        if ! @user.nil? && ! @user.empty?
+            @userprofile = Muserprofile.getprofile (xuid)
+            render json: [status:"OK", message: @userprofile]
+        else
+            render json: [status:"ERROR", message: "Invalid Token"]
+        end
+    end
+
     private
 	def user_newuser
 		params.require(:newuser).permit(:un, :pwd, :uidoapp, :flagoapp, :name, :address, :phone, :dob)
     end
     def user_login
         params.require(:userlogin).permit(:un, :pwd)
+    end
+    def user_profile
+        params.require(:userprofile).permit(:uid, :token)
     end
 end

@@ -34,8 +34,8 @@ class Muser < ActiveRecord::Base
         return @usercheck
     end
 
-    def sellf.checktoken(uid,token)
-        @usercheck = Muser.where("uid = #{uid} and password = '#{token}'")
+    def self.checktoken(uid,token)
+        @usercheck = Muser.where("userid = #{uid} and token = '#{token}'")
         return @usercheck
     end
 end
